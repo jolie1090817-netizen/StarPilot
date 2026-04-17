@@ -32,8 +32,8 @@ BACKUP_COUNT = 10                  # 保留最近 N 份報告
 # 郵件設定 (可選，需要設定 Gmail/企業郵箱)
 ENABLE_EMAIL = False  # 改為 True 啟用郵件
 EMAIL_SENDER = ""     # 你的郵箱 (Gmail 需使用應用密碼)
-EMAIL_PASSWORD = ""   # 應用密碼 
-EMAIL_RECIPIENTS = [] # 收件者清單
+EMAIL_PASSWORD = ""   # 應用密碼
+EMAIL_RECIPIENTS = []  # 收件者清單
 
 # ============ 確保目錄存在 ============
 Path(OUTPUT_DIR).mkdir(exist_ok=True)
@@ -61,10 +61,12 @@ product_stats = product_stats.sort_values('金額', ascending=False)
 daily_sales = df.groupby('日期')['金額'].sum().reset_index()
 
 # 計算周環比
-current_week_sales = df[df['日期'] >= df['日期'].max() - pd.Timedelta(days=7)]['金額'].sum()
-prev_week_sales = df[(df['日期'] >= df['日期'].max() - pd.Timedelta(days=14)) & 
-                      (df['日期'] < df['日期'].max() - pd.Timedelta(days=7))]['金額'].sum()
-week_on_week = ((current_week_sales - prev_week_sales) / prev_week_sales * 100) if prev_week_sales > 0 else 0
+current_week_sales = df[df['日期'] >=
+                        df['日期'].max() - pd.Timedelta(days=7)]['金額'].sum()
+prev_week_sales = df[(df['日期'] >= df['日期'].max() - pd.Timedelta(days=14)) &
+                     (df['日期'] < df['日期'].max() - pd.Timedelta(days=7))]['金額'].sum()
+week_on_week = ((current_week_sales - prev_week_sales) /
+                prev_week_sales * 100) if prev_week_sales > 0 else 0
 
 print(f"   - 共 {len(product_stats)} 個產品")
 print(f"   - 總銷售額: NT${df['金額'].sum():,}")
@@ -81,7 +83,7 @@ with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
     df_export = df.copy()
     df_export['日期'] = df_export['日期'].astype(str)
     df_export.to_excel(writer, sheet_name='原始數據', index=False)
-    
+
     # 工作表 2: 統計摘要
     summary_data = {
         '統計項目': ['總銷售額', '總銷售量', '平均單筆', '產品數', '交易日期', '週環比'],
@@ -95,10 +97,10 @@ with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
         ]
     }
     pd.DataFrame(summary_data).to_excel(writer, sheet_name='統計摘要', index=False)
-    
+
     # 工作表 3: 產品排行
     product_stats.to_excel(writer, sheet_name='產品排行')
-    
+
     # 工作表 4: 銷售趨勢
     daily_sales.to_excel(writer, sheet_name='銷售趨勢', index=False)
 
@@ -108,7 +110,8 @@ print("🎨 加入圖表和美化...")
 wb = openpyxl.load_workbook(output_file)
 
 # 定義樣式
-header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+header_fill = PatternFill(start_color="4472C4",
+                          end_color="4472C4", fill_type="solid")
 header_font = Font(bold=True, color="FFFFFF", size=12)
 center_align = Alignment(horizontal="center", vertical="center")
 border = Border(
@@ -134,7 +137,8 @@ bar_chart.type = "col"
 bar_chart.title = "前 5 名產品銷售額"
 bar_chart.y_axis.title = "銷售額 (NT$)"
 bar_chart.x_axis.title = "產品"
-labels = Reference(ws_chart1, min_col=1, min_row=2, max_row=len(top_5_data) + 1)
+labels = Reference(ws_chart1, min_col=1, min_row=2,
+                   max_row=len(top_5_data) + 1)
 data = Reference(ws_chart1, min_col=3, min_row=1, max_row=len(top_5_data) + 1)
 bar_chart.add_data(data, titles_from_data=True)
 bar_chart.set_categories(labels)
@@ -154,8 +158,10 @@ for idx, (product, row) in enumerate(product_stats.iterrows(), start=2):
 
 pie_chart = PieChart()
 pie_chart.title = "各產品銷售佔比"
-labels = Reference(ws_chart2, min_col=1, min_row=2, max_row=len(product_stats) + 1)
-data = Reference(ws_chart2, min_col=3, min_row=1, max_row=len(product_stats) + 1)
+labels = Reference(ws_chart2, min_col=1, min_row=2,
+                   max_row=len(product_stats) + 1)
+data = Reference(ws_chart2, min_col=3, min_row=1,
+                 max_row=len(product_stats) + 1)
 pie_chart.add_data(data, titles_from_data=True)
 pie_chart.set_categories(labels)
 pie_chart.height = 12
@@ -174,7 +180,8 @@ line_chart = LineChart()
 line_chart.title = "每日銷售趨勢"
 line_chart.y_axis.title = "銷售額 (NT$)"
 line_chart.x_axis.title = "日期"
-labels = Reference(ws_chart3, min_col=1, min_row=2, max_row=len(daily_sales) + 1)
+labels = Reference(ws_chart3, min_col=1, min_row=2,
+                   max_row=len(daily_sales) + 1)
 data = Reference(ws_chart3, min_col=2, min_row=1, max_row=len(daily_sales) + 1)
 line_chart.add_data(data, titles_from_data=True)
 line_chart.set_categories(labels)
@@ -213,7 +220,8 @@ wb.save(output_file)
 # ============ 備份舊報告 ============
 print(f"\n📦 備份報告...")
 recent_reports = sorted(
-    [f for f in os.listdir(OUTPUT_DIR) if f.startswith('週報_') and f.endswith('.xlsx')],
+    [f for f in os.listdir(OUTPUT_DIR) if f.startswith(
+        '週報_') and f.endswith('.xlsx')],
     reverse=True
 )
 
@@ -233,7 +241,7 @@ if ENABLE_EMAIL and EMAIL_RECIPIENTS:
         msg['To'] = ', '.join(EMAIL_RECIPIENTS)
         msg['Date'] = formatdate(localtime=True)
         msg['Subject'] = f"[自動化] 週報 {datetime.now().strftime('%Y-%m-%d')}"
-        
+
         # 郵件內容
         email_body = f"""
 親愛的主管，
@@ -255,7 +263,7 @@ Best regards,
 自動化報告系統
 """
         msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
-        
+
         # 附件
         with open(output_file, 'rb') as attachment:
             part = MIMEBase('application', 'octet-stream')
@@ -266,14 +274,14 @@ Best regards,
                 f'attachment; filename= {os.path.basename(output_file)}'
             )
             msg.attach(part)
-        
+
         # 寄送
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.send_message(msg)
-        
+
         print(f"   ✓ 報告已寄送至: {', '.join(EMAIL_RECIPIENTS)}")
-    
+
     except Exception as e:
         print(f"   ✗ 郵件發送失敗: {e}")
 

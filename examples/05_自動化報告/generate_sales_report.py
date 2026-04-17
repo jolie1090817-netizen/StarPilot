@@ -60,7 +60,7 @@ with pd.ExcelWriter(OUTPUT_FILE, engine='openpyxl') as writer:
     df_export = df.copy()
     df_export['日期'] = df_export['日期'].astype(str)
     df_export.to_excel(writer, sheet_name='原始數據', index=False)
-    
+
     # 🔹 工作表 2: 統計摘要
     summary_data = {
         '統計項目': ['總銷售額', '總銷售量', '平均單筆', '產品數', '交易日期'],
@@ -73,10 +73,10 @@ with pd.ExcelWriter(OUTPUT_FILE, engine='openpyxl') as writer:
         ]
     }
     pd.DataFrame(summary_data).to_excel(writer, sheet_name='統計摘要', index=False)
-    
+
     # 🔹 工作表 3: 產品排行
     product_stats.to_excel(writer, sheet_name='產品排行')
-    
+
     # 🔹 工作表 4: 銷售趨勢
     daily_sales.to_excel(writer, sheet_name='銷售趨勢', index=False)
 
@@ -103,7 +103,8 @@ bar_chart.type = "col"
 bar_chart.title = "前 5 名產品銷售額"
 bar_chart.y_axis.title = "銷售額 (NT$)"
 bar_chart.x_axis.title = "產品"
-labels = Reference(ws_chart1, min_col=1, min_row=2, max_row=len(top_5_data) + 1)
+labels = Reference(ws_chart1, min_col=1, min_row=2,
+                   max_row=len(top_5_data) + 1)
 data = Reference(ws_chart1, min_col=3, min_row=1, max_row=len(top_5_data) + 1)
 bar_chart.add_data(data, titles_from_data=True)
 bar_chart.set_categories(labels)
@@ -123,8 +124,10 @@ for idx, (product, row) in enumerate(product_stats.iterrows(), start=2):
 
 pie_chart = PieChart()
 pie_chart.title = "各產品銷售佔比"
-labels = Reference(ws_chart2, min_col=1, min_row=2, max_row=len(product_stats) + 1)
-data = Reference(ws_chart2, min_col=3, min_row=1, max_row=len(product_stats) + 1)
+labels = Reference(ws_chart2, min_col=1, min_row=2,
+                   max_row=len(product_stats) + 1)
+data = Reference(ws_chart2, min_col=3, min_row=1,
+                 max_row=len(product_stats) + 1)
 pie_chart.add_data(data, titles_from_data=True)
 pie_chart.set_categories(labels)
 pie_chart.height = 12
@@ -143,7 +146,8 @@ line_chart = LineChart()
 line_chart.title = "每日銷售趨勢"
 line_chart.y_axis.title = "銷售額 (NT$)"
 line_chart.x_axis.title = "日期"
-labels = Reference(ws_chart3, min_col=1, min_row=2, max_row=len(daily_sales) + 1)
+labels = Reference(ws_chart3, min_col=1, min_row=2,
+                   max_row=len(daily_sales) + 1)
 data = Reference(ws_chart3, min_col=2, min_row=1, max_row=len(daily_sales) + 1)
 line_chart.add_data(data, titles_from_data=True)
 line_chart.set_categories(labels)
@@ -155,7 +159,8 @@ ws_chart3.add_chart(line_chart, "E2")
 print("🎨 格式化 Excel...")
 
 # 定義樣式
-header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+header_fill = PatternFill(start_color="4472C4",
+                          end_color="4472C4", fill_type="solid")
 header_font = Font(bold=True, color="FFFFFF", size=12)
 center_align = Alignment(horizontal="center", vertical="center")
 border = Border(
